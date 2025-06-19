@@ -165,7 +165,7 @@ union floatUnion {
 const bool verbose = 1; // prints the raw packet data for each canbus received message.  this generates a LOT of text!
 const bool printStats = 0;  // prints the current gauge data values after each 0x30 packet.  mostly deprecated with printloopstats in place
 const bool printLoopStats = 1;  // prints the current gauge data values when pushing to the display
-const bool testData = 0;  // generate fake data and loop it to the display
+const bool testData = 1;  // generate fake data and loop it to the display
 const bool sendToEsp = 1;
 bool ssmActive = 1; // set to 1 for active sending, 0 for passive listening.  will always turn off passive if it sees other traffic
 const unsigned int updateInt = 0; // how fast to do an update in the loop, 50 should be ~10 times a second
@@ -175,6 +175,10 @@ unsigned int displayMode = 3; // set this manually for test mode, otherwise it w
 const unsigned int displayModeNormal = 3; // set which display mode to use when the device is not logging.
 const unsigned int displayModeLogging = 2; // set which display mode to use when the accessport is logging
 /* GLOBAL and SETUP VARS */
+
+    int nums[8];
+    float floats[5];
+
 
 
 /* FUNCTION DECLARATION FOR PLATFORMIO */
@@ -193,6 +197,7 @@ void sendNbp();
 void sendNewRequest();
 int calcByteToInt(unsigned char data);
 float calcThrottle(unsigned char data);
+void sendEsp();
 /* FUNCTION DECLARATION FOR PLATFORMIO */
 
 
@@ -247,7 +252,7 @@ void setup(void) {
   //delay(5000);
 
 
-  Serial2.println("init");
+  //Serial2.println("init");
 
 }
 
@@ -588,6 +593,7 @@ void loop() {
       print = !print;
       logger = digitalRead(4);  // reads the logging button value
       if (logger == HIGH) { sendNbp(); }
+      sendEsp();
       delay(updateInt);
       updateHz = 1.0 / ((micros() - start) / 1000000.0);
     }
@@ -627,15 +633,50 @@ void loop() {
     print = !print;
     logger = digitalRead(4);  // reads the logging button value
     if (logger == HIGH) { sendNbp(); }
+    sendEsp();
     delay(updateInt);
     updateHz = 1.0 / ((micros() - start) / 1000000.0);
   }
 
+}
+
+
+
+void sendEsp() {
   if (sendToEsp) {
-    int nums[8] = {coolantFinal, intakeTempFinal, rpmFinal, gearFinal, speedFinal, throttleFinal, oilTemperature, oilPressure};
-    float floats[5] = {feedbackKnockFinal, fineKnockFinal, boostFinal, damFinal, afrFinal};
+    //int nums[8] = {coolantFinal, intakeTempFinal, rpmFinal, gearFinal, speedFinal, throttleFinal, oilTemperature, oilPressure};
+    //float floats[5] = {feedbackKnockFinal, fineKnockFinal, boostFinal, damFinal, afrFinal};
+    //char letters[13] = {'a','b','c','d','e','f','g','h','i','j','k','l','m'};
     
+
+    int nums[3] = {rpmFinal, speedFinal, throttleFinal};
+
+
+    /*
+    Serial2.print("a");
+    Serial2.print(rpmFinal);
+    Serial2.print(",");
+    Serial2.print("b");
+    Serial2.println(speedFinal);
+    */
+
     
+    for (int z = 0; z < 3; z++) {
+      Serial2.print(nums[z]);
+      if (z < 2) {
+        Serial2.print(",");
+      }
+    }
+
+    Serial2.print("\n");
+    
+
+
+
+
+    
+
+    /*
     // Send the integers followed by floats, each separated by commas
     for (int i = 0; i < 8; i++) {
       Serial2.print(nums[i]);
@@ -653,14 +694,13 @@ void loop() {
     }
     Serial2.println();  // End the line after sending all the data
     Serial.println(" finished");
+    */
+    
 
     //Serial2.println("from teensy");
     //Serial.println("sent to Serial 2");
   }
-
-
 }
-
 
 
 void sendNbp() {
