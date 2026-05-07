@@ -4,6 +4,7 @@
 #include <FlexCAN_T4.h>
 #include "SPI.h"
 #include "ILI9341_t3n.h"
+#include <Adafruit_GPS.h>
 #include "config.h"
 
 /* CAN BUS STATE */
@@ -19,6 +20,10 @@ bool flowCont = 1;
 unsigned long lastTime = 0;
 unsigned long count = 0;
 unsigned long lastCanTime = 0;
+
+/* GPS */
+#define GPSSerial Serial5
+Adafruit_GPS GPS(&GPSSerial);
 
 /* GAUGE DATA */
 float feedbackKnockFinal;
@@ -44,7 +49,7 @@ uint16_t yellowMin, yellowMinPx, yellowMax, yellowMaxPx, yellowFill, redMin, red
 
 /* PERIPHERALS */
 char buf[10];
-int16_t oilTemperature, oilPressure;
+int16_t oilTemperature, oilPressure, diffTemperature;
 
 void updateAllBufferAsync();
 
@@ -80,14 +85,24 @@ void sendNewRequest();
 int calcByteToInt(unsigned char data);
 float calcThrottle(unsigned char data);
 void sendEsp();
+void readGps();
 /* FUNCTION DECLARATION FOR PLATFORMIO */
 
 
 void setup(void) {
+  
+  // init hardware serial output for physical usb
   Serial.begin(SERIAL_BAUD);
   delay(100);
-  if (!(testData)) { HWSERIAL.begin(OIL_SERIAL_BAUD); }
-  if (sendToEsp) { delay(100); HWSERIAL3.begin(ESP_SERIAL_BAUD); }
+  if (!(testData)) { HWSERIAL.begin(OIL_SERIAL_BAUD); } // this inits the serial to arduino if not in test mode
+  if (sendToEsp) { delay(100); HWSERIAL3.begin(ESP_SERIAL_BAUD); } // this inits the serial3 connection to the esp
+  if (gpsConnected) {
+    delay(100);
+    GPS.begin(9600); //  init the serial5 connection for the gps module
+    GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
+    GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
+    GPS.sendCommand(PGCMD_ANTENNA);   // request antenna status reports  
+  }
   delay(100);
   tft.begin();
   delay(100);
@@ -135,6 +150,11 @@ void setup(void) {
 
 
   //Serial3.println("init");
+
+  GPS.begin(9600);
+  GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
+  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
+  GPS.sendCommand(PGCMD_ANTENNA);
 
   lastTime = millis();
 
@@ -394,6 +414,7 @@ void canSniffIso(const CAN_message_t &msg) {
 
 
 
+
 void loop() {  
   
   //Serial.println(digitalRead(BUTTON1));
@@ -464,7 +485,11 @@ void loop() {
         Serial.print(" GEAR: "); Serial.print(gearFinal);
         Serial.print(" SPEED: "); Serial.print(speedFinal);
         Serial.print(" AFR: "); Serial.print(afrFinal);
-        Serial.print(" THROTTLE: "); Serial.println(throttleFinal);
+        Serial.print(" THROTTLE: "); Serial.print(throttleFinal);
+        Serial.print(" GPS FIX: "); Serial.print((int)GPS.fix);
+        Serial.print(" SATS: "); Serial.print((int)GPS.satellites);
+        Serial.print(" LAT: "); Serial.print(GPS.latitudeDegrees, 6);
+        Serial.print(" LON: "); Serial.println(GPS.longitudeDegrees, 6);
       }
 
 
@@ -510,7 +535,11 @@ void loop() {
       Serial.print(" GEAR: "); Serial.print(gearFinal);
       Serial.print(" SPEED: "); Serial.print(speedFinal);
       Serial.print(" AFR: "); Serial.print(afrFinal);
-      Serial.print(" THROTTLE: "); Serial.println(throttleFinal);
+      Serial.print(" THROTTLE: "); Serial.print(throttleFinal);
+      Serial.print(" GPS FIX: "); Serial.print((int)GPS.fix);
+      Serial.print(" SATS: "); Serial.print((int)GPS.satellites);
+      Serial.print(" LAT: "); Serial.print(GPS.latitudeDegrees, 6);
+      Serial.print(" LON: "); Serial.println(GPS.longitudeDegrees, 6);
     }
 
     //  no longer printing the screen after every main loop(), instead only printing and sending data after a successful 0x30 full message
@@ -533,6 +562,24 @@ void loop() {
       count = 0;
       lastTime = millis();
     }
+
+    readGps();
+}
+
+void readGps() {
+  // drain whatever bytes have arrived since the last loop pass
+  while (GPS.read()) {}
+
+  // if a full NMEA sentence is buffered, parse it — this updates
+  // GPS.latitude, GPS.longitude, GPS.fix, GPS.speed, GPS.antenna, etc.
+  if (GPS.newNMEAreceived()) {
+    GPS.parse(GPS.lastNMEA());
+  }
+
+  // current values are now live in the GPS object, e.g.:
+  //   (int)GPS.antenna     -> 1=no antenna, 2=internal, 3=external
+  //   GPS.fix              -> 0/1
+  //   GPS.latitude/.longitude, GPS.speed (knots), GPS.satellites
 }
 
 
@@ -590,6 +637,14 @@ void processOil (char *t) {
       // write the second value as oil pressure
       if (val < 0) { val = 0; }
       oilPressure = (val);
+      break;
+
+  case 'c':
+      if (verbose) {
+        Serial.print ("[VERBOSE] cmd c ");
+        Serial.println (val);
+      }
+      diffTemperature = (val);
       break;
 
   default:

@@ -130,9 +130,10 @@ const uint8_t row3Lrg = row3 - 10;
 
 const bool verbose        = 0;    // prints raw CAN packet data (generates a LOT of text)
 const bool printStats     = 0;    // prints gauge values after each 0x30 packet (mostly deprecated)
-const bool printLoopStats = 0;    // prints gauge values when pushing to the display
+const bool printLoopStats = 1;    // prints gauge values when pushing to the display
 const bool testData       = 0;    // generate fake data and loop it to the display
 const bool sendToEsp      = 1;    // send data to ESP32 over Serial3
+const bool gpsConnected   = 1;    // the gps module is installed and should be read on Serial5
 
 const unsigned int updateInt         = 10;  // loop update interval in ms (40 = ~10hz, 10 = ~25hz)
 const unsigned int displayModeNormal  = 3;    // display mode when not logging (1 = normal, 3 = normal with bars)
