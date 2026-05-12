@@ -74,10 +74,11 @@ const uint8_t row4 = 190;
 const uint8_t row5 = 240;
 
 // Named row aliases for display mode 3 (bar mode)
-const uint8_t oilTempRow   = row1;
-const uint8_t coolantRow   = row2;
-const uint8_t oilPressRow  = row3;
-const uint8_t boostRow     = row4;
+const uint8_t oilTempRow   = row1 - 20;
+const uint8_t coolantRow   = row2 - 20;
+const uint8_t oilPressRow  = row3 - 20;
+const uint8_t boostRow     = row4 - 20;
+const uint8_t diffDccdRow  = row5 - 30;
 const uint8_t intakeDamRow = row5;
 const uint16_t knockRow    = 270;
 const uint16_t statusRow   = 310;
