@@ -100,8 +100,9 @@ void setup(void) {
     delay(100);
     GPS.begin(9600); //  init the serial5 connection for the gps module
     GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
-    GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
-    GPS.sendCommand(PGCMD_ANTENNA);   // request antenna status reports  
+    GPS.sendCommand(PMTK_SET_NMEA_UPDATE_10HZ);
+    GPS.sendCommand(PGCMD_ANTENNA);   // request antenna status reports
+    GPSSerial.println("$CDCMD,33,1*7C");
   }
   delay(100);
   tft.begin();
@@ -155,6 +156,7 @@ void setup(void) {
   GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
   GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
   GPS.sendCommand(PGCMD_ANTENNA);
+  GPSSerial.println("$CDCMD,33,1*7C");
 
   lastTime = millis();
 
@@ -491,7 +493,8 @@ void loop() {
         Serial.print(" GPS FIX: "); Serial.print((int)GPS.fix);
         Serial.print(" SATS: "); Serial.print((int)GPS.satellites);
         Serial.print(" LAT: "); Serial.print(GPS.latitudeDegrees, 6);
-        Serial.print(" LON: "); Serial.println(GPS.longitudeDegrees, 6);
+        Serial.print(" LON: "); Serial.print(GPS.longitudeDegrees, 6);
+        Serial.print(" $PCD: "); Serial.println(GPS.lastNMEA());
       }
 
 
@@ -542,7 +545,8 @@ void loop() {
       Serial.print(" GPS FIX: "); Serial.print((int)GPS.fix);
       Serial.print(" SATS: "); Serial.print((int)GPS.satellites);
       Serial.print(" LAT: "); Serial.print(GPS.latitudeDegrees, 6);
-      Serial.print(" LON: "); Serial.println(GPS.longitudeDegrees, 6);
+      Serial.print(" LON: "); Serial.print(GPS.longitudeDegrees, 6);
+      Serial.print(" $PCD: "); Serial.println(GPS.lastNMEA());
     }
 
     //  no longer printing the screen after every main loop(), instead only printing and sending data after a successful 0x30 full message
