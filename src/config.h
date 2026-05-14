@@ -135,10 +135,9 @@ const bool printLoopStats = 1;    // prints gauge values when pushing to the dis
 const bool testData       = 1;    // generate fake data and loop it to the display
 const bool sendToEsp      = 1;    // send data to ESP32 over Serial3
 const bool gpsConnected   = 1;    // the gps module is installed and should be read on Serial5
-const bool diagMode       = 1;    // whether to use 'race' mode as a diag display mode instead
 
-const unsigned int updateInt         = 100;  // loop update interval in ms (40 = ~10hz, 10 = ~25hz)
-const unsigned int displayModeNormal  = 4;    // display mode when not logging (1 = normal, 3 = normal with bars)
+const unsigned int updateInt         = 10;  // loop update interval in ms (40 = ~10hz, 10 = ~25hz)
+const unsigned int displayModeNormal  = 3;    // display mode when not logging (1 = normal, 3 = normal with bars)
 const unsigned int displayModeLogging = 2;    // display mode when AP is logging (2 = race)
 
 #endif
