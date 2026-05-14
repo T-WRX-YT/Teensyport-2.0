@@ -154,7 +154,7 @@ void setup(void) {
 
   GPS.begin(9600);
   GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
-  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
+  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_10HZ);
   GPS.sendCommand(PGCMD_ANTENNA);
   GPSSerial.println("$CDCMD,33,1*7C");
 
@@ -417,11 +417,12 @@ void canSniffIso(const CAN_message_t &msg) {
 
 
 
-void loop() {  
-  
+void loop() {
+
   //Serial.println(digitalRead(BUTTON1));
-  
-  
+
+  readGps();
+
   // some crazy stuff i found on the internet.  how i receive and parse two integers at once via serial from an arduino
   if (!(testData)) {
     if (HWSERIAL.available ()) {
@@ -452,6 +453,7 @@ void loop() {
   if (testData) {
     for (int i = -40; i < 280; i++) {
       //unsigned long start = micros();
+      readGps();
       coolantFinal = i;
       oilTemperature = i;
       intakeTempFinal = i;
@@ -1383,6 +1385,47 @@ void setFrameBuffer() {
     tft.print(fineRpmMax);
   }
 
+  // diag mode
+  else if (displayMode == 4) {
+    tft.setTextColor(ILI9341_WHITE);
+    tft.setTextSize(1);
+    tft.setCursor(0, 50);
+    tft.print("GPS Milliseonds: ");
+    tft.println(GPS.milliseconds);
+    tft.print("GPS Time: ");
+    tft.print(GPS.day, DEC); tft.print('/');
+    tft.print(GPS.month, DEC); tft.print("/20");
+    tft.println(GPS.year, DEC);
+    tft.print("GPS Fix: "); tft.println((int)GPS.fix);
+    tft.print("GPS Quality: "); tft.println((int)GPS.fixquality);
+    
+    tft.print("Location: "); tft.print(GPS.latitude, 4); tft.print(GPS.lat);
+    tft.print(", ");
+    tft.print(GPS.longitude, 4); tft.println(GPS.lon);
+    tft.print("Speed (knots): "); tft.println(GPS.speed);
+    tft.print("Angle: "); tft.println(GPS.angle);
+    tft.print("Altitude: "); tft.println(GPS.altitude);
+    tft.print("Satellites: "); tft.println((int)GPS.satellites);
+    tft.print("NMEA: "); tft.println(GPS.lastNMEA());
+    
+    tft.print("FB: "); tft.println(feedbackKnockFinal);
+    tft.print("FN: "); tft.println(fineKnockFinal);
+    tft.print("BST: "); tft.println(boostFinal);
+    tft.print("COOL: "); tft.println(coolantFinal);
+    tft.print("DAM: "); tft.println(damFinal);
+    tft.print("INTAKE: "); tft.println(intakeTempFinal);
+    tft.print("OIL T: "); tft.println(oilTemperature);
+    tft.print("OIL P: "); tft.println(oilPressure);
+    tft.print("DIFF T: "); tft.println(diffTemperature);
+    tft.print("DCCD: "); tft.println((int)dccdPercent);
+    tft.print("RPM: "); tft.println(rpmFinal);
+    tft.print("GEAR: "); tft.println(gearFinal);
+    tft.print("SPEED: "); tft.println(speedFinal);
+    tft.print("AFR: "); tft.println(afrFinal);
+    tft.print("THROTTLE: "); tft.println(throttleFinal);
+
+  }
+
   ////////////////////////////////////////* anything else, mostly to handle a mode 0 if the canbus data is not parsed right *////////////////////////////////////////
   else {
 
@@ -1477,6 +1520,10 @@ void setFrameBuffer() {
   else if (displayMode == 3) {
     tft.setTextColor(ILI9341_BLACK, ILI9341_GREEN);
     tft.print("MODE: NORM");   
+  }
+  else if (displayMode == 4) {
+    tft.setTextColor(ILI9341_BLACK, ILI9341_GREEN);
+    tft.print("MODE: DIAG");       
   }
   else {
     tft.setTextColor(ILI9341_BLACK, ILI9341_RED);
