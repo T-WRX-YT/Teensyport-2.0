@@ -19,8 +19,8 @@
 // #define TFT_RST 15
 
 // Buttons
-#define BUTTON1 2 // pin 2 signal
-#define BUTTON2 3 // pin 3 signal
+#define BUTTON1 2 // pin 2 signal -- button for changing display modes
+#define BUTTON2 3 // pin 3 signal -- button for enabling diag display mode
 #define BUTTON3 4 // pin 4 signal
 
 /* ---- SERIAL CONNECTIONS ---- */
@@ -138,6 +138,7 @@ const bool gpsConnected   = 1;    // the gps module is installed and should be r
 
 const unsigned int updateInt         = 10;  // loop update interval in ms (40 = ~10hz, 10 = ~25hz)
 const unsigned int displayModeNormal  = 3;    // display mode when not logging (1 = normal, 3 = normal with bars)
-const unsigned int displayModeLogging = 4;    // display mode when AP is logging (2 = race)
+const unsigned int displayModeLogging = 2;    // display mode when AP is logging (2 = race)
+const unsigned int displayModeDiag    = 4;    // diag mode for printing raw stats
 
 #endif

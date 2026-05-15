@@ -43,6 +43,7 @@ float afrFinal;
 uint8_t throttleFinal;
 unsigned long timer;
 unsigned int logger;
+unsigned int diagMode;
 
 /* RPM BAR VARIABLES */
 uint16_t yellowMin, yellowMinPx, yellowMax, yellowMaxPx, yellowFill, redMin, redMinPx, revLimitPx, redMax, redMaxPx, redFill;
@@ -144,7 +145,8 @@ void setup(void) {
     flowCont = 0; 
   }  // turn off SSM active is test data is on, no need for this
 
-  pinMode(BUTTON1, INPUT_PULLUP);
+  pinMode(BUTTON1, INPUT_PULLUP); // lets you just use pin >> gnd
+  pinMode(BUTTON2, INPUT_PULLUP); // lets you just use pin >> gnd
   //pinMode(21, OUTPUT);
   //digitalWrite(21, HIGH);
   //delay(5000);
@@ -226,6 +228,7 @@ void canSniffIso(const CAN_message_t &msg) {
           else {
             displayMode = displayModeNormal;
           }
+          if (!(diagMode)) { displayMode = displayModeDiag; }  // diag button overrides logger
         }
         else {
           displayMode = 0;
@@ -506,9 +509,11 @@ void loop() {
       else {
         displayMode = displayModeNormal;
       }
+      if (!(diagMode)) { displayMode = displayModeDiag; }  // diag button overrides logger
 
       updateAllBufferAsync();
       logger = digitalRead(BUTTON1);  // reads the logging button value
+      diagMode = digitalRead(BUTTON2);  // reads the diag button value
       //if (logger == HIGH) { sendNbp(); }
       sendEsp();
       delay(updateInt);
@@ -554,6 +559,7 @@ void loop() {
     //  no longer printing the screen after every main loop(), instead only printing and sending data after a successful 0x30 full message
     updateAllBufferAsync();  // also update here so display shows arduino data when no CAN connection
     logger = digitalRead(BUTTON1);  // reads the logging button value
+    diagMode = digitalRead(BUTTON2);  // reads the diag button value
     //if (logger == HIGH) { sendNbp(); }
     //sendEsp();
     delay(updateInt);
