@@ -41,6 +41,7 @@ uint8_t gearFinal;
 uint8_t speedFinal;
 float afrFinal;
 uint8_t throttleFinal;
+float ethFinal;
 unsigned long timer;
 unsigned int logger;
 unsigned int diagMode;
@@ -393,9 +394,9 @@ void canSniffIso(const CAN_message_t &msg) {
           afrFinal = calcAfr(responseData[19]);
           if (verbose) { Serial.println("[VERBOSE] Sending throttle"); }
           throttleFinal = calcThrottle(responseData[20]);
-          //if (verbose) { Serial.println("[VERBOSE] Sending brake"); }
-          //unsigned char brakeData[2] = {responseData[22], responseData[21]};
-          //brakeFinal = ((calcIntFull(brakeData, 37)) / 255);
+          if (verbose) { Serial.println("[VERBOSE] Sending eth"); }
+          uint16_t ethRaw = ((uint16_t)responseData[21] << 8) | responseData[22];
+          ethFinal = (ethRaw * 100.0f) / 65535.0f;
         }
         else {
           // something went wrong here :(
@@ -495,6 +496,7 @@ void loop() {
         Serial.print(" SPEED: "); Serial.print(speedFinal);
         Serial.print(" AFR: "); Serial.print(afrFinal);
         Serial.print(" THROTTLE: "); Serial.print(throttleFinal);
+        Serial.print(" ETH: "); Serial.print(ethFinal);
         Serial.print(" GPS FIX: "); Serial.print((int)GPS.fix);
         Serial.print(" SATS: "); Serial.print((int)GPS.satellites);
         Serial.print(" LAT: "); Serial.print(GPS.latitudeDegrees, 6);
@@ -549,6 +551,7 @@ void loop() {
       Serial.print(" SPEED: "); Serial.print(speedFinal);
       Serial.print(" AFR: "); Serial.print(afrFinal);
       Serial.print(" THROTTLE: "); Serial.print(throttleFinal);
+      Serial.print(" ETH: "); Serial.print(ethFinal);
       Serial.print(" GPS FIX: "); Serial.print((int)GPS.fix);
       Serial.print(" SATS: "); Serial.print((int)GPS.satellites);
       Serial.print(" LAT: "); Serial.print(GPS.latitudeDegrees, 6);
@@ -1595,6 +1598,8 @@ void sendNewRequest() {
   sendMessage(newReq9);
   delay(sendDelay);
   sendMessage(newReq10);
+  delay(sendDelay);
+  sendMessage(newReq11);
   delay(flowDelay);
   sendFlow();
 }
