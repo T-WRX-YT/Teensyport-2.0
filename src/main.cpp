@@ -1266,6 +1266,27 @@ void setFrameBuffer() {
 
 
 
+    /* ETH */
+    tft.setCursor(0, ethRow);
+    tft.setTextColor(ILI9341_WHITE);
+    tft.setTextSize(1);
+    tft.println("ETH");
+
+    //eth
+    tft.setCursor(160, ethRow - 4);
+    tft.setTextSize(2);
+    tft.print(ethFinal);
+
+    // draws the first row empty bar
+    tft.drawRect(40, ethRow - 4, 110, 15, ILI9341_WHITE);
+
+    // maps the eth value to pixels for the bar printing
+    barMap = map(ethFinal, 0, 100, 0, 110);
+    tft.fillRect(41, ethRow - 4, barMap, 14, ILI9341_WHITE);
+    /* ETH */
+
+
+
     /* BOOST */
     tft.setCursor(0, boostRow);
     tft.setTextColor(ILI9341_WHITE);
@@ -1432,6 +1453,7 @@ void setFrameBuffer() {
     tft.print("SPEED: "); tft.println(speedFinal);
     tft.print("AFR: "); tft.println(afrFinal);
     tft.print("THROTTLE: "); tft.println(throttleFinal);
+    tft.print("ETH: "); tft.println(ethFinal);
 
   }
 

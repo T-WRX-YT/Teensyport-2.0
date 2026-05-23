@@ -43,7 +43,7 @@
 // Standalone SSM request packets
 // data collected: feedback knock, fine knock, rpm, boost, coolant temp, dam, intake temp, gear, speed, afr, throttle
 const unsigned char newReq0[8]  = {0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-const unsigned char newReq1[8]  = {0x10, 0x45, 0xA8, 0x00, 0xFF, 0x7D, 0xA0, 0xFF}; //4 bytes of request + 2 bytes before it
+const unsigned char newReq1[8]  = {0x10, 0x47, 0xA8, 0x00, 0xFF, 0x7D, 0xA0, 0xFF}; //4 bytes of request + 2 bytes before it
 const unsigned char newReq2[8]  = {0x21, 0x7D, 0xA1, 0xFF, 0x7D, 0xA2, 0xFF, 0x7D}; //7
 const unsigned char newReq3[8]  = {0x22, 0xA3, 0xFF, 0x7E, 0x3C, 0xFF, 0x7E, 0x3D}; //7
 const unsigned char newReq4[8]  = {0x23, 0xFF, 0x7E, 0x3E, 0xFF, 0x7E, 0x3F, 0xFF}; //7
@@ -53,7 +53,7 @@ const unsigned char newReq7[8]  = {0x26, 0x00, 0x00, 0x0F, 0x00, 0x00, 0x08, 0xF
 const unsigned char newReq8[8]  = {0x27, 0x68, 0x5E, 0x00, 0x00, 0x12, 0xFF, 0x67}; //7
 const unsigned char newReq9[8]  = {0x28, 0xF4, 0x00, 0x00, 0x10, 0x00, 0x00, 0x46}; //7
 const unsigned char newReq10[8] = {0x29, 0x00, 0x00, 0x29, 0xFF, 0x1E, 0xE4, 0xFF}; //7
-const unsigned char newReq11[8] = {0x2A, 0x1E, 0xE5, 0x00, 0x00, 0x00, 0x00, 0x00}; //2 bytes of request = 69 bytes aka 0x45
+const unsigned char newReq11[8] = {0x2A, 0x1E, 0xE5, 0x00, 0x00, 0x00, 0x00, 0x00}; //2 bytes of request = 71 bytes aka 0x47
 
 /* ---- RESPONSE TYPE CODES ---- */
 
@@ -75,10 +75,11 @@ const uint8_t row4 = 190;
 const uint8_t row5 = 240;
 
 // Named row aliases for display mode 3 (bar mode)
-const uint8_t oilTempRow   = row1 - 20;
-const uint8_t coolantRow   = row2 - 20;
-const uint8_t oilPressRow  = row3 - 20;
-const uint8_t boostRow     = row4 - 20;
+const uint8_t oilTempRow   = row1 - 50;
+const uint8_t coolantRow   = row2 - 50;
+const uint8_t oilPressRow  = row3 - 50;
+const uint8_t ethRow       = row4 - 50;
+const uint8_t boostRow     = row4 - 25;
 const uint8_t diffDccdRow  = row5 - 30;
 const uint8_t intakeDamRow = row5;
 const uint16_t knockRow    = 270;
@@ -132,7 +133,7 @@ const uint8_t row3Lrg = row3 - 10;
 
 const bool verbose        = 0;    // prints raw CAN packet data (generates a LOT of text)
 const bool printStats     = 0;    // prints gauge values after each 0x30 packet (mostly deprecated)
-const bool printLoopStats = 1;    // prints gauge values when pushing to the display
+const bool printLoopStats = 0;    // prints gauge values when pushing to the display
 const bool testData       = 0;    // generate fake data and loop it to the display
 const bool sendToEsp      = 1;    // send data to ESP32 over Serial3
 const bool gpsConnected   = 1;    // the gps module is installed and should be read on Serial5
