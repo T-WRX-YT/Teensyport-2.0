@@ -610,21 +610,21 @@ void sendEsp() {
 
     for (int z = 0; z < 8; z++) {
       Serial3.print(nums[z]);
-      //Serial.print(nums[z]);
+      Serial.print(nums[z]);
       Serial3.print(",");
-      //Serial.print(",");
+      Serial.print(",");
     }
     for (int z = 0; z < 5; z++) {
       Serial3.print(floats[z]);
-      //Serial.print(floats[z]);
+      Serial.print(floats[z]);
       if (z < 4) {
         Serial3.print(",");
-        //Serial.print(",");
+        Serial.print(",");
       }
     }
 
     Serial3.print("\n");
-    //Serial.print("\n");
+    Serial.print("\n");
     //updateHz = 1.0 / ((micros() - start) / 1000000.0);
     //Serial.println(updateHz);
   }
