@@ -42,6 +42,7 @@ uint8_t speedFinal;
 float afrFinal;
 uint8_t throttleFinal;
 float ethFinal;
+bool brakeFinal;
 unsigned long timer;
 unsigned int logger;
 unsigned int diagMode;
@@ -396,7 +397,10 @@ void canSniffIso(const CAN_message_t &msg) {
           throttleFinal = calcThrottle(responseData[20]);
           if (verbose) { Serial.println("[VERBOSE] Sending eth"); }
           uint16_t ethRaw = ((uint16_t)responseData[21] << 8) | responseData[22];
+          if (verbose) { Serial.print("[VERBOSE] Input data: "); Serial.println(ethRaw, HEX); }
           ethFinal = (ethRaw * 100.0f) / 65535.0f;
+          if (verbose) { Serial.print("[VERBOSE] Byte 23 bits: "); for (int b = 7; b >= 0; b--) { Serial.print((responseData[23] >> b) & 0x01); if (b == 3) { Serial.print("<"); } else { Serial.print(" "); } } Serial.println(); }
+          brakeFinal = (responseData[23] >> 3) & 0x01;
         }
         else {
           // something went wrong here :(
@@ -497,6 +501,7 @@ void loop() {
         Serial.print(" AFR: "); Serial.print(afrFinal);
         Serial.print(" THROTTLE: "); Serial.print(throttleFinal);
         Serial.print(" ETH: "); Serial.print(ethFinal);
+        Serial.print(" BRAKE: "); Serial.print(brakeFinal);
         Serial.print(" GPS FIX: "); Serial.print((int)GPS.fix);
         Serial.print(" SATS: "); Serial.print((int)GPS.satellites);
         Serial.print(" LAT: "); Serial.print(GPS.latitudeDegrees, 6);
@@ -552,6 +557,7 @@ void loop() {
       Serial.print(" AFR: "); Serial.print(afrFinal);
       Serial.print(" THROTTLE: "); Serial.print(throttleFinal);
       Serial.print(" ETH: "); Serial.print(ethFinal);
+      Serial.print(" BRAKE: "); Serial.print(brakeFinal);
       Serial.print(" GPS FIX: "); Serial.print((int)GPS.fix);
       Serial.print(" SATS: "); Serial.print((int)GPS.satellites);
       Serial.print(" LAT: "); Serial.print(GPS.latitudeDegrees, 6);
@@ -605,10 +611,10 @@ void sendEsp() {
   if (sendToEsp) {
     count++;
     //unsigned long start = micros();
-    int nums[8] = {coolantFinal, intakeTempFinal, rpmFinal, gearFinal, speedFinal, throttleFinal, oilTemperature, oilPressure};
+    int nums[11] = {coolantFinal, intakeTempFinal, rpmFinal, gearFinal, speedFinal, throttleFinal, oilTemperature, oilPressure, diffTemperature, (int)dccdPercent, brakeFinal};
     float floats[5] = {feedbackKnockFinal, fineKnockFinal, boostFinal, damFinal, afrFinal};
 
-    for (int z = 0; z < 8; z++) {
+    for (int z = 0; z < 11; z++) {
       Serial3.print(nums[z]);
       Serial.print(nums[z]);
       Serial3.print(",");
@@ -1454,6 +1460,7 @@ void setFrameBuffer() {
     tft.print("AFR: "); tft.println(afrFinal);
     tft.print("THROTTLE: "); tft.println(throttleFinal);
     tft.print("ETH: "); tft.println(ethFinal);
+    tft.print("BRAKE: "); tft.println(brakeFinal);
 
   }
 

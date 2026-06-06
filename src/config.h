@@ -43,7 +43,7 @@
 // Standalone SSM request packets
 // data collected: feedback knock, fine knock, rpm, boost, coolant temp, dam, intake temp, gear, speed, afr, throttle
 const unsigned char newReq0[8]  = {0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-const unsigned char newReq1[8]  = {0x10, 0x47, 0xA8, 0x00, 0xFF, 0x7D, 0xA0, 0xFF}; //4 bytes of request + 2 bytes before it
+const unsigned char newReq1[8]  = {0x10, 0x4A, 0xA8, 0x00, 0xFF, 0x7D, 0xA0, 0xFF}; //4 bytes of request + 2 bytes before it
 const unsigned char newReq2[8]  = {0x21, 0x7D, 0xA1, 0xFF, 0x7D, 0xA2, 0xFF, 0x7D}; //7
 const unsigned char newReq3[8]  = {0x22, 0xA3, 0xFF, 0x7E, 0x3C, 0xFF, 0x7E, 0x3D}; //7
 const unsigned char newReq4[8]  = {0x23, 0xFF, 0x7E, 0x3E, 0xFF, 0x7E, 0x3F, 0xFF}; //7
@@ -63,7 +63,7 @@ const unsigned char newReq11[8] = {0x2A, 0x1E, 0xE5, 0x00, 0x01, 0x21, 0x00, 0x0
 
 #define RESP_BYTES_AP6       0x11
 #define RESP_BYTES_AP_LOG    0x3D
-#define RESP_BYTES_STANDALONE 0x17
+#define RESP_BYTES_STANDALONE 0x18
 
 /* ---- DISPLAY LAYOUT ---- */
 
@@ -134,7 +134,7 @@ const uint8_t row3Lrg = row3 - 10;
 const bool verbose        = 0;    // prints raw CAN packet data (generates a LOT of text)
 const bool printStats     = 0;    // prints gauge values after each 0x30 packet (mostly deprecated)
 const bool printLoopStats = 0;    // prints gauge values when pushing to the display
-const bool testData       = 1;    // generate fake data and loop it to the display
+const bool testData       = 0;    // generate fake data and loop it to the display
 const bool sendToEsp      = 1;    // send data to ESP32 over Serial3
 const bool gpsConnected   = 1;    // the gps module is installed and should be read on Serial5
 
